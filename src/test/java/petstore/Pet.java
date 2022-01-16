@@ -10,6 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.contains;
 
 // 3 - Classe
 public class Pet {
@@ -24,7 +26,7 @@ public class Pet {
     }
 
     // Incluir - Create - Post
-    @Test // Identifica o método ou função como um teste para o TesteNG
+    @Test(priority = 1) // Identifica o método ou função como um teste para o TesteNG
     public void createPet() throws IOException {
         String jsonBody = lerJson("data/pet1.json");
 
@@ -39,6 +41,67 @@ public class Pet {
                 .post(uri)
                 .then()
                 .log().all()
-                .statusCode(200);
+                .statusCode(200)
+                .body("name", is("Garfield"))
+                .body("status", is("available"))
+                .body("category.name", is("cat"))
+                .body("tags.name", contains("vacinado"))
+        ;
+
+    }
+
+    @Test(priority = 2)
+    public void searchPet(){
+        String petId = "782368276433";
+
+        given()
+                .contentType("application/json")
+                .log().all()
+                .when()
+                .get(uri + "/" + petId)
+                .then()
+                .log().all()
+                .statusCode(200)
+                .body("name", is("Garfield"))
+                .body("status", is("available"))
+                .body("category.name", is("cat"))
+        ;
+    }
+
+    @Test(priority = 3)
+    public void changePet() throws IOException {
+        String jsonBody = lerJson("data/pet2.json");
+
+        given()
+                .contentType("application/json")
+                .log().all()
+                .body(jsonBody)
+                .when()
+                .put(uri)
+                .then()
+                .log().all()
+                .statusCode(200)
+                .body("name", is("Garfield"))
+                .body("category.name", is("cat"))
+                .body("status", is("sold"))
+        ;
+    }
+
+    @Test(priority = 4)
+    public void deletePet(){
+        String petId = "782368276433";
+
+        given()
+                .contentType("application/json")
+                .log().all()
+                .when()
+                .delete(uri + "/" + petId)
+                .then()
+                .log().all()
+                .statusCode(200)
+                .body("code", is(200))
+                .body("type", is("unknown"))
+                .body("message", is(petId))
+        ;
     }
 }
