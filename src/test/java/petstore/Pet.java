@@ -10,8 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.*;
 
 // 3 - Classe
 public class Pet {
@@ -47,13 +47,13 @@ public class Pet {
                 .body("category.name", is("cat"))
                 .body("tags.name", contains("vacinado"))
         ;
-
     }
 
     @Test(priority = 2)
     public void searchPet(){
         String petId = "782368276433";
 
+        String token =
         given()
                 .contentType("application/json")
                 .log().all()
@@ -65,7 +65,10 @@ public class Pet {
                 .body("name", is("Garfield"))
                 .body("status", is("available"))
                 .body("category.name", is("cat"))
+        .extract()
+                .path("category.name")
         ;
+        System.out.println(token);
     }
 
     @Test(priority = 3)
